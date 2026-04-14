@@ -4,34 +4,34 @@ from datetime import datetime, timedelta
 from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
-# -------------------------------------------------
+# 
 # CONFIGURATION (unchanged)
-# -------------------------------------------------
+# 
 google_sheet_id = "1KDQJM6ZIVZCkFoylfoXqsbead93zwjzCc61wHGf2GSM"
-main_gid = "712927586"
+main_gid = "348947423"
 orders_gid = "0"
 
 stock_csv_url = f"https://docs.google.com/spreadsheets/d/{google_sheet_id}/export?format=csv&gid={main_gid}"
 orders_csv_url = f"https://docs.google.com/spreadsheets/d/{google_sheet_id}/export?format=csv&gid={orders_gid}"
 
-output_file = "/home/santosh/Documents/Python/Scripts/FBA/FBA Report/final_output.xlsx"
+output_file = "/home/santosh/Documents/dev/python/fba/FBA Report/final_output.xlsx"
 
-# -------------------------------------------------
+# 
 # READ MAIN STOCK SHEET
-# -------------------------------------------------
+# 
 print("Loading main stock data (with stock + sales)...")
 df_stock = pd.read_csv(stock_csv_url, low_memory=False)
 df_stock["Receipt Date"] = pd.to_datetime(df_stock["Receipt Date"], errors="coerce")
 
-# -------------------------------------------------
+# 
 # FC LIST
-# -------------------------------------------------
+# 
 fc_order = ["RNR0","BOM5","BOM7","PNQ3","SBLY","BLR8","BLR7","BLR5","HYD8","HYD3",
             "CJB1","MAA4","LKO1","DEL5","DEL4","DEL2","DED4","CCX2","CCX1","GAX1","DEX3","IDX2","NAX1","CCX4","ZSHA","FMAB","FHYE","DED3","DED5","JPX2"]
 
-# -------------------------------------------------
+# 
 # SHEET 1 — Replenishment_Needed (NOW WITH Receipt Date)
-# -------------------------------------------------
+# 
 print("Generating Replenishment_Needed & Low_Selling_Items...")
 sheet1 = []
 for _, row in df_stock.iterrows():
@@ -49,9 +49,9 @@ df_sheet1 = pd.DataFrame(sheet1, columns=[
     "SKU","ASIN","Product Name","Receipt Date","Current Stock","Total Sale","Required (45 Days)","Replenishment Needed"
 ] + [f"{fc} Stock" for fc in fc_order])
 
-# -------------------------------------------------
+# 
 # SHEET 2 — Low_Selling_Items (unchanged)
-# -------------------------------------------------
+# 
 sheet2 = []
 for _, row in df_stock.iterrows():
     stock = row["Total Stock (All FCs)"]
@@ -66,9 +66,9 @@ for _, row in df_stock.iterrows():
 df_sheet2 = pd.DataFrame(sheet2, columns=["SKU","ASIN","Product Name","Receipt Date","Stock","Sale","% Sold"] + [f"{fc} Stock" for fc in fc_order])
 df_sheet2 = df_sheet2.sort_values("Receipt Date")
 
-# -------------------------------------------------
+# 
 # SHEET 3 — QWQC (unchanged)
-# -------------------------------------------------
+# 
 print("Generating QWQC...")
 df_orders = pd.read_csv(orders_csv_url, low_memory=False)
 df_orders['Order_Date'] = pd.to_datetime(df_orders.iloc[:, 0].astype(str).str.strip(), format='%Y-%m-%d', errors='coerce')
@@ -94,9 +94,9 @@ for idx, row in qwqc_summary.iterrows():
         qwqc_summary.at[idx, "BOM5 + BOM7 Stock"] = bom5 + bom7
 qwqc_summary.loc[len(qwqc_summary)] = ["GRAND TOTAL", qwqc_summary["Qty"].sum(), qwqc_summary["BOM5 + BOM7 Stock"].sum()]
 
-# -------------------------------------------------
+# 
 # SHEET 4 — ZONEWISE (NOW WITH Receipt Date)
-# -------------------------------------------------
+# 
 print("Generating zonewise sheet (with Receipt Date)...")
 
 df_zonewise = df_stock[['SKU', 'ASIN', 'Product Name',
@@ -121,9 +121,9 @@ for fc in fc_order:
     final_cols += [f"{fc} Stock", f"{fc} Sale", "45 day replenish" if fc=="RNR0" else f"{fc} 45 day replenish"]
 df_zonewise = df_zonewise[final_cols]
 
-# -------------------------------------------------
+# 
 # SAVE & FORMAT (unchanged + auto column width will handle new column)
-# -------------------------------------------------
+# 
 print("Saving final report...")
 with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
     df_sheet1.to_excel(writer, "Replenishment_Needed", index=False)
