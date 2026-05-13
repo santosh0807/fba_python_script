@@ -74,12 +74,22 @@ total_df = pd.DataFrame([total_row])
 # Combine original + total row
 final_df = pd.concat([filtered_df, total_df], ignore_index=True)
 
+st.markdown("""
+<style>
+thead tr th {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 2;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.dataframe(
     final_df.style.apply(highlight_row, axis=1),
     use_container_width=True,
-    height=600  # increase this value
+    height=700  # increased height for more rows
 )
-
 
 # -------------------------------
 # SUMMARY
