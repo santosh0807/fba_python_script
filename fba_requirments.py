@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Inventory Planning Dashboard", layout="wide")
 
-st.title("📦 Inventory Planning Dashboard")
+st.markdown("<h4>📦 Inventory Planning Dashboard</h4>", unsafe_allow_html=True)
 
 # -------------------------------
 # AUTO LOAD FILE (NO UPLOAD)
@@ -76,7 +76,8 @@ final_df = pd.concat([filtered_df, total_df], ignore_index=True)
 
 st.dataframe(
     final_df.style.apply(highlight_row, axis=1),
-    use_container_width=True
+    use_container_width=True,
+    height=600  # increase this value
 )
 
 
