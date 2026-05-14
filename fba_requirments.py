@@ -229,7 +229,7 @@ with tab3:
         if col not in ["Brand", "SKU", "Asin", "Product name"]
     ]
 
-    styled_df = filtered_df.style.applymap(highlight_stock, subset=stock_cols)
+    styled_df = filtered_df.style.map(highlight_stock, subset=stock_cols)
 
     # -------------------------------
     # DISPLAY
