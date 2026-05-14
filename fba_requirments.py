@@ -32,6 +32,31 @@ packing_df = load_packing()
 fba_df = load_fba()
 
 # -------------------------------
+# 🔐 LOGIN SYSTEM
+# -------------------------------
+def login():
+
+    st.title("🔐 Login Required")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        if username == "santosh" and password == "111":
+            st.session_state["logged_in"] = True
+        else:
+            st.error("Invalid Username or Password")
+
+# Session check
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+
+# Show login if not logged in
+if not st.session_state["logged_in"]:
+    login()
+    st.stop()
+
+# -------------------------------
 # TABS
 # -------------------------------
 tab1, tab2, tab3 = st.tabs(
